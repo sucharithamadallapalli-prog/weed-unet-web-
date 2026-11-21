@@ -1,0 +1,75 @@
+
+{% extends "base.html" %}
+
+{% block title %}
+    {% if current_language == 'te' %}కలుపు నిర్వహణ
+    {% elif current_language == 'ta' %}களை மேலாண்மை
+    {% elif current_language == 'hi' %}खरपतवार प्रबंधन
+    {% else %}Weed Management{% endif %}
+{% endblock %}
+
+{% block content %}
+
+<h1>
+    {% if current_language == 'te' %}కలుపు నిర్వహణ
+    {% elif current_language == 'ta' %}களை மேலாண்மை
+    {% elif current_language == 'hi' %}खरपतवार प्रबंधन
+    {% else %}Weed Management{% endif %}
+</h1>
+
+<p>
+    {% if current_language == 'te' %}
+        తీవ్రత ఆధారంగా సాధారణ సూచనలు (తక్కువ: 5% కంటే తక్కువ, మధ్యస్థం: 5–20%, అధికం: 20% కంటే ఎక్కువ కలుపు విస్తీర్ణం). స్థానిక వ్యవసాయ నిపుణుడిని సంప్రదించండి.
+    {% elif current_language == 'ta' %}
+        தீவிரத்தின் அடிப்படையிலான பொதுவான வழிகாட்டுதல் (குறைவு: 5%-க்கும் குறைவு, மிதமானது: 5–20%, அதிகம்: 20%-க்கும் மேல் களைப் பரப்பளவு). உள்ளூர் வேளாண் நிபுணரிடம் ஆலோசனை பெறவும்.
+    {% elif current_language == 'hi' %}
+        गंभीरता के आधार पर सामान्य मार्गदर्शन (कम: 5% से कम, मध्यम: 5–20%, अधिक: 20% से अधिक खरपतवार क्षेत्र)। स्थानीय कृषि विशेषज्ञ से सलाह लें।
+    {% else %}
+        General guidance by severity (Low &lt;5%, Moderate 5-20%, High &gt;20% coverage). Confirm with a local agronomist.
+    {% endif %}
+</p>
+
+{% for level, tips in advice.items() %}
+<div class="card">
+
+    <h3 class="sev-{{ level }}">
+        {% set severity = level|string|lower %}
+        {% if current_language == 'te' %}
+            {% if severity == 'low' %}తక్కువ
+            {% elif severity in ['moderate', 'medium'] %}మధ్యస్థం
+            {% elif severity == 'high' %}అధికం
+            {% elif severity == 'severe' %}తీవ్రమైన
+            {% else %}{{ level }}{% endif %}
+        {% elif current_language == 'ta' %}
+            {% if severity == 'low' %}குறைவு
+            {% elif severity in ['moderate', 'medium'] %}மிதமானது
+            {% elif severity == 'high' %}அதிகம்
+            {% elif severity == 'severe' %}மிகக் கடுமையானது
+            {% else %}{{ level }}{% endif %}
+        {% elif current_language == 'hi' %}
+            {% if severity == 'low' %}कम
+            {% elif severity in ['moderate', 'medium'] %}मध्यम
+            {% elif severity == 'high' %}अधिक
+            {% elif severity == 'severe' %}गंभीर
+            {% else %}{{ level }}{% endif %}
+        {% else %}
+            {{ level }}
+        {% endif %}
+    </h3>
+
+    <ul>
+        {% for t in tips %}
+        <li>
+            {% if current_language == 'en' %}
+                {{ t }}
+            {% else %}
+                {{ t }}
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+
+</div>
+{% endfor %}
+
+{% endblock %}

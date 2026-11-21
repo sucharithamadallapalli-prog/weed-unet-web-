@@ -1,0 +1,13 @@
+{% extends "base.html" %}{% block content %}
+<h1>Fields</h1>
+<form method="post" class="card row">
+  <input name="name" placeholder="Field name" required>
+  <input name="crop" placeholder="Crop">
+  <input name="area_ha" type="number" step="0.01" placeholder="Area (ha)">
+  <button>Add field</button>
+</form>
+<table><tr><th>Name</th><th>Crop</th><th>Area (ha)</th><th></th></tr>
+{% for f in fields %}<tr><td>{{ f.name }}</td><td>{{ f.crop or '-' }}</td><td>{{ f.area_ha or '-' }}</td>
+<td><form method="post" action="{{ url_for('dashboard.delete_field', fid=f.id) }}" data-confirm="Delete this field?"><button>Delete</button></form></td></tr>
+{% else %}<tr><td colspan="4">No fields yet.</td></tr>{% endfor %}</table>
+{% endblock %}

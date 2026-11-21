@@ -1,0 +1,129 @@
+
+{% extends "base.html" %}
+
+{% block title %}
+    {% if current_language == 'te' %}విశ్లేషణ చరిత్ర
+    {% elif current_language == 'ta' %}பகுப்பாய்வு வரலாறு
+    {% elif current_language == 'hi' %}विश्लेषण इतिहास
+    {% else %}Analysis History{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+
+    <h1>
+        {% if current_language == 'te' %}విశ్లేషణ చరిత్ర
+        {% elif current_language == 'ta' %}பகுப்பாய்வு வரலாறு
+        {% elif current_language == 'hi' %}विश्लेषण इतिहास
+        {% else %}Analysis History{% endif %}
+    </h1>
+
+    <p>
+        {% if current_language == 'te' %}
+            మీ గత కలుపు గుర్తింపు విశ్లేషణలను చూడండి.
+        {% elif current_language == 'ta' %}
+            உங்கள் முந்தைய களை கண்டறிதல் பகுப்பாய்வுகளைப் பார்க்கவும்.
+        {% elif current_language == 'hi' %}
+            अपने पिछले खरपतवार पहचान विश्लेषण देखें।
+        {% else %}
+            View your previous weed detection analyses.
+        {% endif %}
+    </p>
+
+    {% if rows %}
+    <div style="overflow-x: auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>
+                        {% if current_language == 'te' %}తేదీ
+                        {% elif current_language == 'ta' %}தேதி
+                        {% elif current_language == 'hi' %}तारीख
+                        {% else %}Date{% endif %}
+                    </th>
+                    <th>
+                        {% if current_language == 'te' %}కలుపు విస్తీర్ణం (%)
+                        {% elif current_language == 'ta' %}களைப் பரப்பளவு (%)
+                        {% elif current_language == 'hi' %}खरपतवार क्षेत्र (%)
+                        {% else %}Weed Coverage (%){% endif %}
+                    </th>
+                    <th>
+                        {% if current_language == 'te' %}తీవ్రత
+                        {% elif current_language == 'ta' %}தீவிரம்
+                        {% elif current_language == 'hi' %}गंभीरता
+                        {% else %}Severity{% endif %}
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for a in rows %}
+                <tr>
+                    <td>{{ a.id }}</td>
+
+                    <td>
+                        {% if a.created_at %}
+                            {{ a.created_at.strftime('%d-%m-%Y %H:%M') }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+
+                    <td>{{ a.weed_percent }}%</td>
+
+                    <td>
+                        {% set severity = (a.severity or '')|lower %}
+                        {% if current_language == 'te' %}
+                            {% if severity == 'low' %}తక్కువ
+                            {% elif severity == 'medium' %}మధ్యస్థం
+                            {% elif severity == 'high' %}అధికం
+                            {% elif severity == 'severe' %}తీవ్రమైన
+                            {% else %}{{ a.severity or '-' }}{% endif %}
+                        {% elif current_language == 'ta' %}
+                            {% if severity == 'low' %}குறைவு
+                            {% elif severity == 'medium' %}மிதமானது
+                            {% elif severity == 'high' %}அதிகம்
+                            {% elif severity == 'severe' %}மிகக் கடுமையானது
+                            {% else %}{{ a.severity or '-' }}{% endif %}
+                        {% elif current_language == 'hi' %}
+                            {% if severity == 'low' %}कम
+                            {% elif severity == 'medium' %}मध्यम
+                            {% elif severity == 'high' %}उच्च
+                            {% elif severity == 'severe' %}गंभीर
+                            {% else %}{{ a.severity or '-' }}{% endif %}
+                        {% else %}
+                            {{ a.severity or '-' }}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% else %}
+    <p>
+        {% if current_language == 'te' %}
+            విశ్లేషణ రికార్డులు కనుగొనబడలేదు. ముందుగా చిత్రాన్ని అప్‌లోడ్ చేసి విశ్లేషణ చేయండి.
+        {% elif current_language == 'ta' %}
+            பகுப்பாய்வு பதிவுகள் எதுவும் இல்லை. முதலில் ஒரு படத்தைப் பதிவேற்றி பகுப்பாய்வு செய்யவும்.
+        {% elif current_language == 'hi' %}
+            कोई विश्लेषण रिकॉर्ड नहीं मिला। पहले एक तस्वीर अपलोड करके विश्लेषण चलाएँ।
+        {% else %}
+            No analysis records found. Upload an image and run an analysis first.
+        {% endif %}
+    </p>
+    {% endif %}
+
+    <p style="margin-top: 20px;">
+        <a href="{{ url_for('dashboard.dashboard') }}">
+            {% if current_language == 'te' %}డాష్‌బోర్డ్‌కు తిరిగి వెళ్లండి
+            {% elif current_language == 'ta' %}டாஷ்போர்டுக்குத் திரும்பவும்
+            {% elif current_language == 'hi' %}डैशबोर्ड पर वापस जाएँ
+            {% else %}Back to Dashboard{% endif %}
+        </a>
+    </p>
+
+</div>
+{% endblock %}

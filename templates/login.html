@@ -1,0 +1,534 @@
+
+{% extends "base.html" %}
+
+{% block title %}Login - Weed Detection System{% endblock %}
+{% block body_class %}login-page{% endblock %}
+
+{% block content %}
+<div class="login-container">
+
+    <div class="language-selector">
+        <label for="language" id="languageLabel">Choose your language</label>
+        <select id="language" onchange="changeLanguage()">
+            <option value="en" {% if current_language == 'en' %}selected{% endif %}>English</option>
+            <option value="te" {% if current_language == 'te' %}selected{% endif %}>తెలుగు (Telugu)</option>
+            <option value="ta" {% if current_language == 'ta' %}selected{% endif %}>தமிழ் (Tamil)</option>
+            <option value="hi" {% if current_language == 'hi' %}selected{% endif %}>हिन्दी (Hindi)</option>
+        </select>
+    </div>
+
+    <h1 id="welcomeText">Welcome Back</h1>
+    <p id="loginDescription">Login to your Weed Detection System</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <p class="flash-message">{{ message }}</p>
+        {% endfor %}
+    {% endwith %}
+
+    <div class="voice-controls">
+        <button type="button" id="instructionsButton"
+                onclick="readInstructions()">🔊 Read instructions</button>
+
+        <button type="button" id="micButton" onclick="startVoice()">🎤 Speak</button>
+
+        <p id="voiceStatus" role="status" aria-live="polite">
+            Click Speak to begin.
+        </p>
+
+        <p id="voiceHelp">
+            Say your username, Password, Login, Register, or Focus username.
+        </p>
+    </div>
+
+    <form method="POST"
+          action="{{ url_for('auth.login') }}"
+          id="loginForm">
+
+        <label for="username" id="usernameLabel">Username</label>
+        <input type="text"
+               id="username"
+               name="username"
+               placeholder="Enter your username"
+               autocomplete="username"
+               required>
+
+        <label for="password" id="passwordLabel">Password</label>
+
+        <div class="password-wrapper">
+            <input type="password"
+                   id="password"
+                   name="password"
+                   placeholder="Enter your password"
+                   autocomplete="current-password"
+                   required>
+
+            <button type="button"
+                    id="togglePassword"
+                    onclick="togglePasswordVisibility()"
+                    aria-label="Show password"
+                    title="Show password">👁</button>
+        </div>
+
+        <button type="submit" id="loginButton">Login</button>
+    </form>
+
+    <p class="register-text">
+        <span id="registerPrompt">Don't have an account?</span>
+        <a href="{{ url_for('auth.register') }}" id="registerLink">Register here</a>
+    </p>
+</div>
+
+<script>
+const translations = {
+    en: {
+        languageLabel: "Choose your language",
+        welcome: "Welcome Back",
+        description: "Login to your Weed Detection System",
+        username: "Username",
+        usernamePlaceholder: "Enter your username",
+        password: "Password",
+        passwordPlaceholder: "Enter your password",
+        login: "Login",
+        registerPrompt: "Don't have an account?",
+        register: "Register here",
+        speak: "🎤 Speak",
+        stop: "⏹ Stop",
+        readInstructions: "🔊 Read instructions",
+        listening: "Listening. Please speak now.",
+        ready: "Click Speak to begin.",
+        help: "Say your username, Password, Login, Register, or Focus username.",
+        usernamePrompt: "Speak your username now.",
+        passwordPrompt: "Click Speak again and speak your password.",
+        usernameReady: "Username entered. Say Password to continue.",
+        passwordReady: "Password entered. Say Login to sign in.",
+        missingUsername: "Please enter your username first.",
+        missingPassword: "Please enter your password first.",
+        permission: "Please allow microphone access in Chrome.",
+        unsupported: "Voice recognition is unavailable in this browser. Try Chrome.",
+        noSpeech: "No speech detected. Click Speak and try again.",
+        network: "Speech recognition network error. Check your internet connection.",
+        error: "Could not recognize your speech. Please try again.",
+        micError: "Could not start the microphone. Please try again.",
+        showPassword: "Show password",
+        hidePassword: "Hide password",
+        instructions: "First say your username. Then say Password. Click Speak again and speak your password. Finally, say Login. You can say Register to open registration.",
+        speechUnsupported: "Spoken instructions are not supported in this browser."
+    },
+
+    te: {
+        languageLabel: "మీ భాషను ఎంచుకోండి",
+        welcome: "స్వాగతం",
+        description: "మీ కలుపు గుర్తింపు వ్యవస్థలోకి లాగిన్ అవ్వండి",
+        username: "వినియోగదారు పేరు",
+        usernamePlaceholder: "మీ వినియోగదారు పేరును నమోదు చేయండి",
+        password: "పాస్‌వర్డ్",
+        passwordPlaceholder: "మీ పాస్‌వర్డ్‌ను నమోదు చేయండి",
+        login: "లాగిన్",
+        registerPrompt: "మీకు ఖాతా లేదా?",
+        register: "ఇక్కడ నమోదు చేసుకోండి",
+        speak: "🎤 మాట్లాడండి",
+        stop: "⏹ ఆపండి",
+        readInstructions: "🔊 సూచనలను వినండి",
+        listening: "వింటున్నాను. దయచేసి మాట్లాడండి.",
+        ready: "ప్రారంభించడానికి మాట్లాడండి బటన్ నొక్కండి.",
+        help: "వినియోగదారు పేరు, పాస్‌వర్డ్, లాగిన్ లేదా రిజిస్టర్ అని చెప్పండి.",
+        usernamePrompt: "మీ వినియోగదారు పేరును చెప్పండి.",
+        passwordPrompt: "మళ్లీ మాట్లాడండి బటన్ నొక్కి పాస్‌వర్డ్ చెప్పండి.",
+        usernameReady: "వినియోగదారు పేరు నమోదు అయింది. పాస్‌వర్డ్ అని చెప్పండి.",
+        passwordReady: "పాస్‌వర్డ్ నమోదు అయింది. లాగిన్ అని చెప్పండి.",
+        missingUsername: "ముందుగా వినియోగదారు పేరును నమోదు చేయండి.",
+        missingPassword: "ముందుగా పాస్‌వర్డ్‌ను నమోదు చేయండి.",
+        permission: "Chromeలో మైక్రోఫోన్ అనుమతిని ఇవ్వండి.",
+        unsupported: "వాయిస్ గుర్తింపు అందుబాటులో లేదు. Chrome ప్రయత్నించండి.",
+        noSpeech: "మాటలు వినబడలేదు. మళ్లీ ప్రయత్నించండి.",
+        network: "వాయిస్ గుర్తింపు నెట్‌వర్క్ సమస్య. ఇంటర్నెట్‌ను తనిఖీ చేయండి.",
+        error: "మీ మాటలను గుర్తించలేకపోయాను. మళ్లీ ప్రయత్నించండి.",
+        micError: "మైక్రోఫోన్ ప్రారంభం కాలేదు. మళ్లీ ప్రయత్నించండి.",
+        showPassword: "పాస్‌వర్డ్ చూపించండి",
+        hidePassword: "పాస్‌వర్డ్ దాచండి",
+        instructions: "ముందుగా మీ వినియోగదారు పేరును చెప్పండి. తర్వాత పాస్‌వర్డ్ అని చెప్పండి. మళ్లీ మాట్లాడండి బటన్ నొక్కి పాస్‌వర్డ్ చెప్పండి. చివరగా లాగిన్ అని చెప్పండి. నమోదు పేజీని తెరవడానికి రిజిస్టర్ అని చెప్పవచ్చు.",
+        speechUnsupported: "ఈ బ్రౌజర్‌లో వాయిస్ సూచనలు అందుబాటులో లేవు."
+    },
+
+    ta: {
+        languageLabel: "உங்கள் மொழியைத் தேர்ந்தெடுக்கவும்",
+        welcome: "மீண்டும் வருக",
+        description: "உங்கள் களை கண்டறிதல் அமைப்பில் உள்நுழையவும்",
+        username: "பயனர் பெயர்",
+        usernamePlaceholder: "உங்கள் பயனர் பெயரை உள்ளிடவும்",
+        password: "கடவுச்சொல்",
+        passwordPlaceholder: "உங்கள் கடவுச்சொல்லை உள்ளிடவும்",
+        login: "உள்நுழைக",
+        registerPrompt: "உங்களிடம் கணக்கு இல்லையா?",
+        register: "இங்கே பதிவு செய்யவும்",
+        speak: "🎤 பேசவும்",
+        stop: "⏹ நிறுத்தவும்",
+        readInstructions: "🔊 வழிமுறைகளைக் கேளுங்கள்",
+        listening: "கேட்கிறது. பேசவும்.",
+        ready: "தொடங்க பேசு பொத்தானை அழுத்தவும்.",
+        help: "பயனர் பெயர், கடவுச்சொல், உள்நுழைக அல்லது பதிவு எனச் சொல்லவும்.",
+        usernamePrompt: "உங்கள் பயனர் பெயரைச் சொல்லவும்.",
+        passwordPrompt: "மீண்டும் பேசு பொத்தானை அழுத்தி கடவுச்சொல்லைச் சொல்லவும்.",
+        usernameReady: "பயனர் பெயர் நிரப்பப்பட்டது. கடவுச்சொல் எனச் சொல்லவும்.",
+        passwordReady: "கடவுச்சொல் நிரப்பப்பட்டது. உள்நுழைக எனச் சொல்லவும்.",
+        missingUsername: "முதலில் பயனர் பெயரை உள்ளிடவும்.",
+        missingPassword: "முதலில் கடவுச்சொல்லை உள்ளிடவும்.",
+        permission: "Chrome இல் மைக்ரோஃபோன் அனுமதியை வழங்கவும்.",
+        unsupported: "குரல் அறிதல் இல்லை. Chrome முயற்சிக்கவும்.",
+        noSpeech: "குரல் கேட்கவில்லை. மீண்டும் முயற்சிக்கவும்.",
+        network: "குரல் அறிதல் நெட்வொர்க் பிழை. இணைய இணைப்பைச் சரிபார்க்கவும்.",
+        error: "குரலை அடையாளம் காண முடியவில்லை. மீண்டும் முயற்சிக்கவும்.",
+        micError: "மைக்ரோஃபோனைத் தொடங்க முடியவில்லை.",
+        showPassword: "கடவுச்சொல்லைக் காட்டு",
+        hidePassword: "கடவுச்சொல்லை மறை",
+        instructions: "முதலில் பயனர் பெயரைச் சொல்லவும். பிறகு கடவுச்சொல் என்று சொல்லவும். மீண்டும் பேசு பொத்தானை அழுத்தி கடவுச்சொல்லைச் சொல்லவும். இறுதியாக உள்நுழைக என்று சொல்லவும். பதிவு பக்கத்தைத் திறக்க பதிவு என்று சொல்லலாம்.",
+        speechUnsupported: "இந்த உலாவியில் குரல் வழிமுறைகள் ஆதரிக்கப்படவில்லை."
+    },
+
+    hi: {
+        languageLabel: "अपनी भाषा चुनें",
+        welcome: "वापसी पर स्वागत है",
+        description: "अपने खरपतवार पहचान सिस्टम में लॉगिन करें",
+        username: "उपयोगकर्ता नाम",
+        usernamePlaceholder: "अपना उपयोगकर्ता नाम दर्ज करें",
+        password: "पासवर्ड",
+        passwordPlaceholder: "अपना पासवर्ड दर्ज करें",
+        login: "लॉगिन करें",
+        registerPrompt: "क्या आपका खाता नहीं है?",
+        register: "यहाँ पंजीकरण करें",
+        speak: "🎤 बोलें",
+        stop: "⏹ रोकें",
+        readInstructions: "🔊 निर्देश सुनें",
+        listening: "सुन रहा है। कृपया बोलें।",
+        ready: "शुरू करने के लिए बोलें बटन दबाएँ।",
+        help: "उपयोगकर्ता नाम, पासवर्ड, लॉगिन या रजिस्टर बोलें।",
+        usernamePrompt: "अब अपना उपयोगकर्ता नाम बोलें।",
+        passwordPrompt: "बोलें बटन फिर दबाएँ और पासवर्ड बोलें।",
+        usernameReady: "उपयोगकर्ता नाम भर दिया गया। पासवर्ड बोलें।",
+        passwordReady: "पासवर्ड भर दिया गया। लॉगिन बोलें।",
+        missingUsername: "पहले उपयोगकर्ता नाम दर्ज करें।",
+        missingPassword: "पहले पासवर्ड दर्ज करें।",
+        permission: "Chrome में माइक्रोफ़ोन की अनुमति दें।",
+        unsupported: "वॉइस पहचान उपलब्ध नहीं है। Chrome आज़माएँ।",
+        noSpeech: "आवाज़ नहीं मिली। फिर कोशिश करें।",
+        network: "वॉइस पहचान में नेटवर्क त्रुटि। इंटरनेट जाँचें।",
+        error: "आवाज़ समझ नहीं आई। फिर कोशिश करें।",
+        micError: "माइक्रोफ़ोन शुरू नहीं हो सका।",
+        showPassword: "पासवर्ड दिखाएँ",
+        hidePassword: "पासवर्ड छिपाएँ",
+        instructions: "पहले अपना उपयोगकर्ता नाम बोलें। फिर पासवर्ड बोलें। बोलें बटन फिर दबाकर अपना पासवर्ड कहें। अंत में लॉगिन बोलें। पंजीकरण पृष्ठ खोलने के लिए रजिस्टर बोल सकते हैं।",
+        speechUnsupported: "इस ब्राउज़र में बोलकर निर्देश सुनने की सुविधा उपलब्ध नहीं है।"
+    }
+};
+
+const speechLanguages = {
+    en: "en-IN",
+    te: "te-IN",
+    ta: "ta-IN",
+    hi: "hi-IN"
+};
+
+let recognition = null;
+let isListening = false;
+let voiceTarget = "username";
+
+function changeLanguage() {
+    const lang = document.getElementById("language").value;
+    const t = translations[lang];
+
+    document.getElementById("languageLabel").textContent = t.languageLabel;
+    document.getElementById("welcomeText").textContent = t.welcome;
+    document.getElementById("loginDescription").textContent = t.description;
+    document.getElementById("usernameLabel").textContent = t.username;
+    document.getElementById("username").placeholder = t.usernamePlaceholder;
+    document.getElementById("passwordLabel").textContent = t.password;
+    document.getElementById("password").placeholder = t.passwordPlaceholder;
+    document.getElementById("loginButton").textContent = t.login;
+    document.getElementById("registerPrompt").textContent = t.registerPrompt;
+    document.getElementById("registerLink").textContent = t.register;
+    document.getElementById("micButton").textContent =
+        isListening ? t.stop : t.speak;
+    document.getElementById("instructionsButton").textContent = t.readInstructions;
+    document.getElementById("voiceStatus").textContent = t.ready;
+    document.getElementById("voiceHelp").textContent = t.help;
+
+    updateEyeLabel();
+
+    // Update the Flask session by adding the selected language to the URL.
+    const url = new URL(window.location.href);
+
+    if (url.searchParams.get("lang") !== lang) {
+        url.searchParams.set("lang", lang);
+        window.location.replace(url.toString());
+    }
+}
+
+function readInstructions() {
+    const lang = document.getElementById("language").value;
+    const t = translations[lang];
+
+    if (!("speechSynthesis" in window)) {
+        document.getElementById("voiceStatus").textContent =
+            t.speechUnsupported;
+        return;
+    }
+
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(t.instructions);
+    utterance.lang = speechLanguages[lang];
+    window.speechSynthesis.speak(utterance);
+}
+
+function togglePasswordVisibility() {
+    const password = document.getElementById("password");
+    password.type = password.type === "password" ? "text" : "password";
+    updateEyeLabel();
+}
+
+function updateEyeLabel() {
+    const lang = document.getElementById("language").value;
+    const password = document.getElementById("password");
+    const button = document.getElementById("togglePassword");
+    const visible = password.type === "text";
+
+    button.textContent = visible ? "🙈" : "👁";
+    button.title = visible
+        ? translations[lang].hidePassword
+        : translations[lang].showPassword;
+    button.setAttribute("aria-label", button.title);
+}
+
+function normalizeSpeech(text) {
+    return text.toLocaleLowerCase()
+        .replace(/[.,!?।]/g, "")
+        .trim();
+}
+
+function startVoice() {
+    const lang = document.getElementById("language").value;
+    const t = translations[lang];
+
+    const SpeechRecognition =
+        window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+        document.getElementById("voiceStatus").textContent = t.unsupported;
+        return;
+    }
+
+    if (isListening && recognition) {
+        recognition.stop();
+        return;
+    }
+
+    recognition = new SpeechRecognition();
+    recognition.lang = speechLanguages[lang];
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = function() {
+        isListening = true;
+        document.getElementById("micButton").textContent = t.stop;
+        document.getElementById("voiceStatus").textContent = t.listening;
+    };
+
+    recognition.onresult = function(event) {
+        const spoken = event.results[0][0].transcript.trim();
+        handleVoiceInput(spoken, lang);
+    };
+
+    recognition.onerror = function(event) {
+        const status = document.getElementById("voiceStatus");
+
+        if (event.error === "not-allowed" ||
+            event.error === "service-not-allowed") {
+            status.textContent = t.permission;
+        } else if (event.error === "no-speech") {
+            status.textContent = t.noSpeech;
+        } else if (event.error === "network") {
+            status.textContent = t.network;
+        } else if (event.error !== "aborted") {
+            status.textContent = t.error;
+        }
+    };
+
+    recognition.onend = function() {
+        isListening = false;
+        const selectedLang = document.getElementById("language").value;
+        document.getElementById("micButton").textContent =
+            translations[selectedLang].speak;
+    };
+
+    try {
+        recognition.start();
+    } catch (error) {
+        isListening = false;
+        document.getElementById("voiceStatus").textContent = t.micError;
+        document.getElementById("micButton").textContent = t.speak;
+    }
+}
+
+function handleVoiceInput(spoken, lang) {
+    const t = translations[lang];
+    const command = normalizeSpeech(spoken);
+    const status = document.getElementById("voiceStatus");
+    const username = document.getElementById("username");
+    const password = document.getElementById("password");
+
+    const usernameCommands = [
+        "username", "focus username",
+        "వినియోగదారు పేరు", "యూజర్ నేమ్",
+        "பயனர் பெயர்", "பயனர்பெயர்",
+        "उपयोगकर्ता नाम", "यूजरनेम"
+    ];
+
+    const passwordCommands = [
+        "password", "focus password",
+        "పాస్‌వర్డ్", "పాస్వర్డ్",
+        "கடவுச்சொல்", "पासवर्ड"
+    ];
+
+    const loginCommands = [
+        "login", "log in",
+        "లాగిన్", "உள்நுழைக", "உள்நுழைய",
+        "लॉगिन", "लॉग इन करें"
+    ];
+
+    const registerCommands = [
+        "register", "open register", "sign up",
+        "రిజిస్టర్", "నమోదు",
+        "பதிவு", "பதிவு செய்யவும்",
+        "रजिस्टर", "पंजीकरण"
+    ];
+
+    const matches = list =>
+        list.some(item => command === normalizeSpeech(item));
+
+    if (matches(registerCommands)) {
+        window.location.href =
+            document.getElementById("registerLink").href;
+        return;
+    }
+
+    if (matches(usernameCommands)) {
+        voiceTarget = "username";
+        username.focus();
+        status.textContent = t.usernamePrompt;
+        return;
+    }
+
+    if (matches(passwordCommands)) {
+        voiceTarget = "password";
+        password.focus();
+        status.textContent = t.passwordPrompt;
+        return;
+    }
+
+    if (matches(loginCommands)) {
+        if (!username.value.trim()) {
+            voiceTarget = "username";
+            username.focus();
+            status.textContent = t.missingUsername;
+            return;
+        }
+
+        if (!password.value) {
+            voiceTarget = "password";
+            password.focus();
+            status.textContent = t.missingPassword;
+            return;
+        }
+
+        document.getElementById("loginForm").requestSubmit();
+        return;
+    }
+
+    // Enter recognized speech into the selected input.
+    if (voiceTarget === "password") {
+        password.value = spoken;
+        password.focus();
+        voiceTarget = "username";
+        status.textContent = t.passwordReady;
+    } else {
+        username.value = spoken;
+        username.focus();
+        voiceTarget = "username";
+        status.textContent = t.usernameReady;
+    }
+}
+
+changeLanguage();
+</script>
+
+<style>
+.voice-controls {
+    text-align: center;
+    margin: 18px 0;
+}
+
+#instructionsButton,
+#micButton {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin: 10px 0;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#instructionsButton {
+    background: #285d80;
+}
+
+#micButton {
+    background: #237a3b;
+}
+
+#instructionsButton:hover {
+    background: #1e4865;
+}
+
+#micButton:hover {
+    background: #185c2b;
+}
+
+#instructionsButton:focus-visible,
+#micButton:focus-visible {
+    outline: 3px solid #f0b429;
+    outline-offset: 3px;
+}
+
+#voiceStatus,
+#voiceHelp {
+    font-size: 15px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.password-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.password-wrapper input {
+    flex: 1;
+    min-width: 0;
+}
+
+#togglePassword {
+    cursor: pointer;
+}
+</style>
+
+{% endblock %}
+
+

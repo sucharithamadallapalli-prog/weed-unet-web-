@@ -1,0 +1,469 @@
+
+/* ==========================================
+   WEED DETECTION SYSTEM - AGRICULTURE THEME
+   ========================================== */
+
+:root {
+    --green: #217a3e;
+    --dark-green: #124b2b;
+    --light-green: #eaf5e8;
+    --text: #24352a;
+    --border: #d7e7d4;
+    --white: #ffffff;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    min-height: 100%;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: Arial, Helvetica, sans-serif;
+    color: var(--text);
+
+    background-image:
+        linear-gradient(
+            rgba(15, 40, 15, 0.25),
+            rgba(15, 40, 15, 0.25)
+        ),
+        url("/static/farm-background.jpg");
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+/* Header and navigation */
+.site-header {
+    padding: 16px 5%;
+    background: rgba(18, 75, 43, 0.96);
+}
+
+.header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.brand {
+    color: white;
+    font-size: 23px;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.main-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+}
+
+.main-nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.main-nav a:hover {
+    color: #c8efb8;
+}
+
+/* Main content */
+.page-content {
+    flex: 1;
+    width: 100%;
+    padding: 25px 20px;
+}
+
+/* Headings */
+h1,
+h2,
+h3,
+h4 {
+    color: var(--dark-green);
+    line-height: 1.3;
+}
+
+/* Content cards and forms */
+.container,
+.login-container,
+.auth-container {
+    width: 100%;
+    max-width: 1000px;
+    margin: 20px auto;
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.18);
+}
+
+/* Login and registration forms */
+.login-container,
+.auth-container {
+    max-width: 650px;
+}
+
+/* Form labels */
+label {
+    display: block;
+    margin: 12px 0 7px;
+    color: var(--dark-green);
+    font-weight: 600;
+}
+
+/* Form fields */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="number"],
+input[type="file"],
+input[type="date"],
+select,
+textarea {
+    display: block;
+    width: 100%;
+    padding: 12px 14px;
+    margin-bottom: 15px;
+    font-family: inherit;
+    font-size: 16px;
+    color: var(--text);
+    background: white;
+    border: 1px solid #bdcfbf;
+    border-radius: 8px;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    outline: 2px solid #65a875;
+    border-color: var(--green);
+}
+
+/* General buttons */
+button,
+input[type="submit"],
+.btn {
+    display: inline-block;
+    padding: 12px 24px;
+    color: white;
+    background: var(--green);
+    border: none;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+button:hover,
+input[type="submit"]:hover,
+.btn:hover {
+    color: white;
+    background: var(--dark-green);
+}
+
+/* Links */
+a {
+    color: var(--green);
+}
+
+.main-nav a,
+.brand {
+    color: white;
+}
+
+/* Language selector */
+.language-selector {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.language-selector label {
+    margin: 0;
+}
+
+.language-selector select {
+    width: auto;
+    max-width: 180px;
+    margin: 0;
+    padding: 8px 10px;
+    cursor: pointer;
+}
+
+/* Password field and eye icon */
+.password-wrapper {
+    position: relative;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.password-wrapper input[type="password"],
+.password-wrapper input[type="text"] {
+    display: block;
+    width: 100%;
+    padding: 12px 52px 12px 14px;
+    margin-bottom: 0;
+}
+
+.password-wrapper .toggle-password {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    margin: 0;
+    color: var(--dark-green);
+    background: transparent;
+    border: none;
+    border-radius: 5px;
+    font-size: 21px;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.password-wrapper .toggle-password:hover {
+    color: var(--green);
+    background: var(--light-green);
+}
+
+/* Registration text */
+.register-text {
+    margin-top: 18px;
+}
+
+/* Dashboard cards */
+.dashboard-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin: 25px 0;
+}
+
+.card {
+    padding: 22px;
+    margin: 12px 0;
+    background: white;
+    border: 1px solid var(--border);
+    border-left: 5px solid var(--green);
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(25, 75, 40, 0.08);
+}
+
+/* Tables and analysis history */
+table {
+    width: 100%;
+    margin: 20px 0;
+    border-collapse: collapse;
+    background: white;
+}
+
+th,
+td {
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    text-align: left;
+}
+
+th {
+    color: white;
+    background: var(--green);
+}
+
+tbody tr:nth-child(even) {
+    background: #f0f7ed;
+}
+
+tbody tr:hover {
+    background: #e5f2df;
+}
+
+/* Flash messages */
+.alert {
+    max-width: 1000px;
+    margin: 15px auto;
+    padding: 13px 16px;
+    color: var(--dark-green);
+    background: #eaf5e8;
+    border: 1px solid #c5e4bf;
+    border-radius: 8px;
+}
+
+.alert-danger,
+.alert-error {
+    color: #842029;
+    background: #f8dede;
+    border-color: #efbcbc;
+}
+
+.alert-warning {
+    color: #75530b;
+    background: #fff3cd;
+    border-color: #f2dfa0;
+}
+
+/* Analysis images */
+img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+.analysis-images {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.analysis-images img {
+    width: 100%;
+    border: 1px solid var(--border);
+}
+
+/* Footer */
+.site-footer {
+    padding: 15px;
+    color: white;
+    text-align: center;
+    background: rgba(18, 75, 43, 0.96);
+}
+
+.site-footer p {
+    margin: 0;
+}
+
+/* Login page background */
+body.login-page {
+    min-height: 100vh;
+    background-image:
+        linear-gradient(
+            rgba(255, 255, 255, 0.10),
+            rgba(255, 255, 255, 0.10)
+        ),
+        url("/static/farm-background.jpg.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+body.login-page .page-content {
+    min-height: 100vh;
+    background: transparent;
+}
+
+/* Mobile layout */
+@media (max-width: 700px) {
+    .header-inner {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .main-nav {
+        gap: 10px;
+    }
+
+    .page-content {
+        padding: 12px;
+    }
+
+    .container,
+    .login-container,
+    .auth-container {
+        padding: 20px;
+        margin: 12px auto;
+    }
+
+    .language-selector {
+        flex-wrap: wrap;
+    }
+
+    table {
+        font-size: 13px;
+    }
+
+    th,
+    td {
+        padding: 8px;
+    }
+}
+
+/* Restore login page farm background */
+body.login-page {
+    background-image:
+        linear-gradient(
+            rgba(255, 255, 255, 0.12),
+            rgba(255, 255, 255, 0.12)
+        ),
+        url("/static/farm-background.jpg.png") !important;
+
+    background-size: cover !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+    background-attachment: fixed !important;
+    min-height: 100vh;
+}
+
+body.login-page .page-content {
+    background: transparent !important;
+    min-height: 100vh;
+}
+
+/* Password eye icon */
+body.login-page .password-wrapper {
+    position: relative;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+body.login-page .password-wrapper input {
+    width: 100%;
+    box-sizing: border-box;
+    padding-right: 52px;
+    margin-bottom: 0;
+}
+
+body.login-page .password-wrapper .toggle-password {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    margin: 0;
+    color: #124b2b;
+    background: transparent;
+    border: none;
+    border-radius: 5px;
+    font-size: 21px;
+    cursor: pointer;
+    z-index: 5;
+}
+
+body.login-page .password-wrapper .toggle-password:hover {
+    color: #217a3e;
+    background: #eaf5e8;
+}

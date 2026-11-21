@@ -1,0 +1,202 @@
+
+<!DOCTYPE html>
+<html lang="{{ current_language|default('en') }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}{{ t["site_name"] }}{% endblock %}</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f8f3;
+            color: #26352a;
+        }
+
+        .navbar {
+            background-color: #217a3e;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .navbar .brand {
+            color: white;
+            font-size: 21px;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 18px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 15px;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        .language-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: white;
+        }
+
+        .language-control select {
+            padding: 7px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            background: white;
+            color: #26352a;
+        }
+
+        .page-content {
+            padding: 20px;
+            min-height: calc(100vh - 110px);
+            box-sizing: border-box;
+        }
+
+        body.login-page {
+            background-image:
+                linear-gradient(
+                    rgba(12, 45, 20, 0.25),
+                    rgba(12, 45, 20, 0.25)
+                ),
+                url("/static/login%20background%20images.webp");
+
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        body.login-page .navbar {
+            display: none;
+        }
+
+        body.login-page .page-content {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        @media (max-width: 600px) {
+            .navbar {
+                padding: 12px;
+            }
+
+            .nav-links {
+                gap: 12px;
+            }
+
+            body.login-page {
+                background-attachment: scroll;
+            }
+        }
+    </style>
+
+    {% block head %}{% endblock %}
+</head>
+
+<body class="{% block body_class %}{% endblock %}">
+
+    <nav class="navbar">
+
+        <a class="brand"
+           href="{{ url_for('dashboard.dashboard') }}">
+            {{ t["site_name"] }}
+        </a>
+
+        <div class="nav-links">
+
+            <a href="{{ url_for('dashboard.dashboard') }}">
+                {{ t["dashboard"] }}
+            </a>
+
+            <a href="{{ url_for('analysis.analysis') }}">
+                {{ t["analysis"] }}
+            </a>
+
+            <a href="{{ url_for('history.index') }}">
+                {{ t["history"] }}
+            </a>
+
+            <a href="{{ url_for('weed_management.index') }}">
+                {{ t["management"] }}
+            </a>
+
+            <a href="{{ url_for('auth.logout') }}">
+                {{ t["logout"] }}
+            </a>
+
+            <div class="language-control">
+                <label for="siteLanguage">
+                    {{ t["language"] }}
+                </label>
+
+                <select id="siteLanguage"
+                        onchange="changeSiteLanguage(this.value)">
+
+                    <option value="en"
+                        {% if current_language == 'en' %}selected{% endif %}>
+                        English
+                    </option>
+
+                    <option value="te"
+                        {% if current_language == 'te' %}selected{% endif %}>
+                        తెలుగు
+                    </option>
+
+                    <option value="ta"
+                        {% if current_language == 'ta' %}selected{% endif %}>
+                        தமிழ்
+                    </option>
+
+                    <option value="hi"
+                        {% if current_language == 'hi' %}selected{% endif %}>
+                        हिन्दी
+                    </option>
+
+                </select>
+            </div>
+
+        </div>
+    </nav>
+
+    <main class="page-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% block scripts %}{% endblock %}
+
+    <script>
+        function changeSiteLanguage(language) {
+            const url = new URL(window.location.href);
+
+            url.searchParams.set("lang", language);
+
+            window.location.href = url.toString();
+        }
+    </script>
+
+</body>
+</html>

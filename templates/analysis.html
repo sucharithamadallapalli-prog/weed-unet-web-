@@ -1,0 +1,234 @@
+
+{% extends "base.html" %}
+
+{% block title %}{{ t["analysis_title"] }} - {{ t["site_name"] }}{% endblock %}
+
+{% block content %}
+
+<style>
+    .analysis-container {
+        width: 100%;
+        max-width: 850px;
+        margin: 25px auto;
+        padding: 28px;
+        box-sizing: border-box;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .analysis-container h1 {
+        color: #217a3e;
+        font-size: clamp(24px, 4vw, 34px);
+        line-height: 1.4;
+        margin-top: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .analysis-container p {
+        line-height: 1.7;
+        overflow-wrap: anywhere;
+    }
+
+    .free-counter {
+        background: #e8f5e9;
+        border-left: 5px solid #217a3e;
+        padding: 15px;
+        margin: 20px 0;
+        border-radius: 7px;
+        color: #185d2e;
+        font-weight: bold;
+    }
+
+    .analysis-container form {
+        margin-top: 25px;
+    }
+
+    .analysis-container label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 12px;
+    }
+
+    .analysis-container input[type="file"] {
+        display: block;
+        width: 100%;
+        max-width: 100%;
+        margin-bottom: 22px;
+        padding: 10px 0;
+        box-sizing: border-box;
+    }
+
+    .analysis-container button {
+        background: #217a3e;
+        color: #ffffff;
+        border: none;
+        border-radius: 6px;
+        padding: 12px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        line-height: 1.5;
+        max-width: 100%;
+        overflow-wrap: anywhere;
+    }
+
+    .analysis-container button:hover {
+        background: #185d2e;
+    }
+
+    .analysis-container a {
+        color: #217a3e;
+    }
+
+    .analysis-container .flash-message {
+        padding: 12px;
+        margin: 12px 0;
+        background: #fff3cd;
+        color: #664d03;
+        border-radius: 6px;
+        overflow-wrap: anywhere;
+    }
+
+    .account-links {
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    .account-links a {
+        display: inline-block;
+        margin: 5px 10px;
+        font-weight: bold;
+    }
+
+    @media (max-width: 600px) {
+        .analysis-container {
+            margin: 10px auto;
+            padding: 18px;
+        }
+
+        .analysis-container button {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="analysis-container">
+
+    <h1>{{ t["analysis_title"] }}</h1>
+
+    <p>{{ t["analysis_description"] }}</p>
+
+    <div class="free-counter">
+
+        {% if current_user.is_authenticated %}
+
+            {% if trial_enabled %}
+
+                {% if current_language == 'te' %}
+                    మీకు ఇంకా {{ free_analyses_remaining }} ఉచిత విశ్లేషణలు మిగిలి ఉన్నాయి.
+                {% elif current_language == 'ta' %}
+                    உங்களுக்கு இன்னும் {{ free_analyses_remaining }} இலவச பகுப்பாய்வுகள் உள்ளன.
+                {% elif current_language == 'hi' %}
+                    आपके पास {{ free_analyses_remaining }} निःशुल्क विश्लेषण शेष हैं।
+                {% else %}
+                    You have {{ free_analyses_remaining }} free analyses remaining.
+                {% endif %}
+
+            {% else %}
+
+                {% if current_language == 'te' %}
+                    మీకు అపరిమిత విశ్లేషణలు అందుబాటులో ఉన్నాయి.
+                {% elif current_language == 'ta' %}
+                    உங்களுக்கு வரம்பற்ற பகுப்பாய்வுகள் கிடைக்கும்.
+                {% elif current_language == 'hi' %}
+                    आपके पास असीमित विश्लेषण उपलब्ध हैं।
+                {% else %}
+                    You have unlimited analyses.
+                {% endif %}
+
+            {% endif %}
+
+        {% else %}
+
+            {% if current_language == 'te' %}
+                మీకు 5 ఉచిత విశ్లేషణలు అందుబాటులో ఉన్నాయి. మిగిలినవి: {{ free_analyses_remaining }}
+            {% elif current_language == 'ta' %}
+                உங்களுக்கு 5 இலவச பகுப்பாய்வுகள் உள்ளன. மீதமுள்ளவை: {{ free_analyses_remaining }}
+            {% elif current_language == 'hi' %}
+                आपके पास 5 निःशुल्क विश्लेषण उपलब्ध हैं। शेष: {{ free_analyses_remaining }}
+            {% else %}
+                You have 5 free visitor analyses. Remaining: {{ free_analyses_remaining }}
+            {% endif %}
+
+        {% endif %}
+
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <p class="flash-message {{ category }}">{{ message }}</p>
+        {% endfor %}
+    {% endwith %}
+
+    <form method="POST"
+          action="{{ url_for('analysis.analysis') }}"
+          enctype="multipart/form-data">
+
+        <label for="image">
+            {{ t["choose_image"] }}
+        </label>
+
+        <input
+            id="image"
+            type="file"
+            name="image"
+            accept=".png,.jpg,.jpeg,.tif,.tiff"
+            required
+        >
+
+        <button type="submit">
+            {% if current_language == 'te' %}
+                U-Net విశ్లేషణ ప్రారంభించండి
+            {% elif current_language == 'ta' %}
+                U-Net பகுப்பாய்வைத் தொடங்கவும்
+            {% elif current_language == 'hi' %}
+                U-Net विश्लेषण चलाएँ
+            {% else %}
+                Run U-Net Analysis
+            {% endif %}
+        </button>
+
+    </form>
+
+    {% if current_user.is_authenticated %}
+
+        <p>
+            <a href="{{ url_for('dashboard.dashboard') }}">
+                {{ t["return_dashboard"] }}
+            </a>
+        </p>
+
+    {% else %}
+
+        <div class="account-links">
+            <p>
+                {% if current_language == 'te' %}
+                    మరిన్ని విశ్లేషణల కోసం నమోదు చేసుకోండి లేదా లాగిన్ అవ్వండి.
+                {% elif current_language == 'ta' %}
+                    மேலும் பகுப்பாய்வுகளுக்கு பதிவு செய்யவும் அல்லது உள்நுழையவும்.
+                {% elif current_language == 'hi' %}
+                    अधिक विश्लेषण के लिए पंजीकरण करें या लॉगिन करें।
+                {% else %}
+                    Register or log in for more analyses.
+                {% endif %}
+            </p>
+
+            <a href="{{ url_for('auth.register') }}">Register</a>
+            <a href="{{ url_for('auth.login') }}">Login</a>
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

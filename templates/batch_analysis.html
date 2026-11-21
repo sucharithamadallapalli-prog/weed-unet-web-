@@ -1,0 +1,12 @@
+{% extends "base.html" %}{% block content %}
+<h1>Batch analysis</h1>
+<div class="card narrow">
+  <select id="field_id"><option value="">No field</option>
+  {% for f in fields %}<option value="{{ f.id }}">{{ f.name }}</option>{% endfor %}</select>
+  <input type="file" id="files" accept="image/*" multiple>
+  <button id="start">Start</button>
+  <progress id="bar" value="0" max="1"></progress>
+</div>
+<table id="out"><tr><th>File</th><th>Weed %</th><th>Severity</th><th></th></tr></table>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/batch_upload.js') }}"></script>{% endblock %}
