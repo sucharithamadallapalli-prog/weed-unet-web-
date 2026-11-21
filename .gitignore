@@ -1,7 +1,8 @@
 .env
 instance/
-uploads/*/*
-exports/*
+uploads/
+exports/
 __pycache__/
 venv/
+.venv/
 !**/.gitkeep
