@@ -19,8 +19,8 @@ def predict_image(image_path, mask_path, result_path):
     image_array = np.asarray(resized, dtype=np.float32) / 255.0
     batch = np.expand_dims(image_array, axis=0)
 
-    # Get model prediction
-    prediction = get_model().predict(batch, verbose=0)
+    # Get model prediction (memory optimization)
+    prediction = get_model()(batch, training=False).numpy()
 
     # Check model output
     if prediction.ndim != 4 or prediction.shape[-1] != 3:
